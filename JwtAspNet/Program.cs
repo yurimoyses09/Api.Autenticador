@@ -1,7 +1,9 @@
 using JwtAspNet;
+using JwtAspNet.Extentions;
 using JwtAspNet.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,8 +38,13 @@ app.MapGet("/login", (TokenService service) =>
     return service.CreateToken(new JwtAspNet.Models.User(1, "Yuri Moyses", "yuri@gmail.com", "https://yuri.io/", "1234", new[] { "student", "admin" }));
 });
 
-app.MapGet("/restrito", () => "Voce tem acesso")
-    .RequireAuthorization();
+app.MapGet("/restrito", (ClaimsPrincipal user) => new 
+    {
+        id = user.Id(),
+        name = user.Name(),
+        givenName = user.GivenName(),
+        image = user.Image(),
+    }).RequireAuthorization();
 
 app.MapGet("/admin", () => "Voce tem acesso")
     .RequireAuthorization("admin");
